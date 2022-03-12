@@ -7,10 +7,18 @@ import (
 	"strconv"
 )
 
-//Some structs to deal with data used in program
+//Introduce the struct Disease and some method to export its content
 type Disease struct {
-	Name  string
-	Symps []string
+	name     string
+	symptoms []string
+}
+
+func (d *Disease) Name() string {
+	return (*d).name
+}
+
+func (d *Disease) Symptoms() []string {
+	return (*d).symptoms
 }
 
 //Introduce the struct Patient and some method to export its content
@@ -67,4 +75,22 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	}
 	//Return the resulting patient struct and nil as the error
 	return &p, nil
+}
+
+var Cancer = Disease{
+	name: "Cancer",
+	symptoms: []string{
+		"symp1",
+		"symp2",
+		"symp3",
+	},
+}
+
+var Aids = Disease{
+	name: "Aids",
+	symptoms: []string{
+		"symp3",
+		"symp4",
+		"symp5",
+	},
 }

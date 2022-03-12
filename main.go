@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/sprogl/website/diagnosis"
@@ -60,26 +61,7 @@ func formHandler(wr http.ResponseWriter, req *http.Request) {
 	//In this case it contains the title of the page and matched disease
 	data := resultPage{
 		Title: "A suitable title",
-		Items: []diagnosis.Disease{
-			{
-				Name: "Cancer",
-				Symps: []string{
-					pat.Symptoms()[0],
-					"symp1",
-					"symp2",
-					"symp3",
-				},
-			},
-
-			{
-				Name: "Aids",
-				Symps: []string{
-					"symp3",
-					"symp4",
-					"symp5",
-				},
-			},
-		},
+		Items: []diagnosis.Disease{diagnosis.Aids, diagnosis.Cancer},
 	}
 	//Set the header's cookies
 	wr.Header().Set("Date", "Mon, 01 Jan 2020 00:00:00 GMT")
@@ -114,14 +96,15 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 
 func main() {
 	//Get the executable's address to find the resources relatively
-	startAdress, err := os.Executable()
+	templatesAdress, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
+	templatesAdress = filepath.Dir(templatesAdress) + "/templates/"
 	//Read the templates from the respective html files
-	resultTmpl = template.Must(template.ParseFiles(startAdress + "templates/result.html"))
-	rootTmpl = template.Must(template.ParseFiles(startAdress + "templates/index.html"))
-	notfoundTmpl = template.Must(template.ParseFiles(startAdress + "templates/notfound.html"))
+	resultTmpl = template.Must(template.ParseFiles(templatesAdress + "result.html"))
+	rootTmpl = template.Must(template.ParseFiles(templatesAdress + "index.html"))
+	notfoundTmpl = template.Must(template.ParseFiles(templatesAdress + "notfound.html"))
 	//Initialize the mux router
 	router := mux.NewRouter().StrictSlash(true)
 	//Set the respective handlers to uri addresses
