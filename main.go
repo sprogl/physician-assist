@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/sprogl/website/diagnosis"
+
 	"github.com/gorilla/mux"
 )
 
@@ -20,7 +22,7 @@ var port int = 8080
 //Some structs to deal with data used in program
 type resultPage struct {
 	Title string
-	Items []diagnosis.disease
+	Items []diagnosis.Disease
 }
 
 //This handler handles the main page
@@ -45,23 +47,24 @@ func rootHandler(wr http.ResponseWriter, req *http.Request) {
 //and returns the sugests the fitting disease
 func formHandler(wr http.ResponseWriter, req *http.Request) {
 	//This passes the post request to the formProcess function and gets the patient struct
-	pat, err := formProcess(req)
+	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 	//Print out the passed symptoms
-	for i := 0; i < len(pat.symptoms); i++ {
-		fmt.Println(pat.symptoms[i])
+	symps := pat.Symptoms()
+	for i := 0; i < len(symps); i++ {
+		fmt.Println(symps[i])
 	}
 	//Prepare the data to feed into the template
 	//In this case it contains the title of the page and matched disease
 	data := resultPage{
 		Title: "A suitable title",
-		Items: []disease{
+		Items: []diagnosis.Disease{
 			{
 				Name: "Cancer",
 				Symps: []string{
-					pat.symptoms[0],
+					pat.Symptoms()[0],
 					"symp1",
 					"symp2",
 					"symp3",

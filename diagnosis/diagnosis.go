@@ -13,20 +13,35 @@ type Disease struct {
 	Symps []string
 }
 
-type patient struct {
+type Patient struct {
 	male     bool
 	age      int
 	symptoms []string
 }
 
+func (p *Patient) Age() int {
+	return (*p).age
+}
+
+func (p *Patient) Symptoms() []string {
+	return (*p).symptoms
+}
+
+func (p *Patient) Gender() string {
+	if (*p).male {
+		return "Male"
+	}
+	return "Female"
+}
+
 //This function processes the post request
 //and extracts the sanitized input inside the post request
-func FormProcess(req *http.Request) (*patient, error) {
+func FormProcess(req *http.Request) (*Patient, error) {
 	//Parse the posted form and extract it for further process
 	req.ParseForm()
 	form := req.PostForm
 	//Define the uninitialized patient data
-	var p patient
+	var p Patient
 	//Check the gender input and set in inside the patient struct
 	switch form.Get("gen") {
 	case "female":
