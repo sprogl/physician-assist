@@ -13,6 +13,7 @@ type Disease struct {
 	Symps []string
 }
 
+//Introduce the struct Patient and some method to export its content
 type Patient struct {
 	male     bool
 	age      int

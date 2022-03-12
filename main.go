@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/sprogl/website/diagnosis"
@@ -16,7 +17,6 @@ import (
 var resultTmpl *template.Template
 var rootTmpl *template.Template
 var notfoundTmpl *template.Template
-var startAdress string = "/home/soorena/"
 var port int = 8080
 
 //Some structs to deal with data used in program
@@ -113,6 +113,11 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	//Get the executable's address to find the resources relatively
+	startAdress, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
 	//Read the templates from the respective html files
 	resultTmpl = template.Must(template.ParseFiles(startAdress + "templates/result.html"))
 	rootTmpl = template.Must(template.ParseFiles(startAdress + "templates/index.html"))
