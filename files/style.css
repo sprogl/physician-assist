@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+
+/*
+General
+*/
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: "Roboto", sans-serif;
+}
+
+.grid-container {
+	display: grid;
+	grid-template-areas:
+		"menu menu menu menu menu menu"
+		"header header header header header header"
+		"tab main main main main right"
+		"tab footer footer footer footer right";
+}
+
+.upper_menu {
+	grid-area: menu;
+	text-align: center;
+	margin-top: 0%;
+	background-color: black;
+	color: white;
+}
+
+.body_title {
+	grid-area: header;
+	text-align: center;
+	font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.tab {
+	grid-area: tab;
+	float: left;
+	margin-top: 100px;
+}
+
+.tabcontent {
+	grid-area: main;
+	float: left;
+	padding: 0px 12px;
+	width: 80%;
+	border-left: none;
+}
+
+.right_tab {
+	grid-area: right;
+}
+
+.footer {
+	grid-area: footer;
+	text-align: center;
+}
+
+/*
+result.html file
+*/
+
+.seperator_line {
+	height: 5px;
+	width: 40%;
+	border-width: 0;
+	color: gray;
+	background-color: gray;
+}
+
+.disease_sec {
+	padding-left: 30%;
+}
+
+/*
+index.html file
+*/
+
+input[type="submit"] {
+	background-color: #04aa6d;
+	color: white;
+	width: 425px;
+	height: 30px;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tablinks {
+	display: block;
+	background-color: #ff5555;
+	color: white;
+	padding: 22px 16px;
+	width: 95%;
+	border: none;
+	outline: none;
+	text-align: left;
+	cursor: pointer;
+	transition: 0.3s;
+	border-radius: 12px;
+	margin-top: 3px;
+}
+
+/* Change background color of buttons on hover */
+.tablinks:hover {
+	opacity: 0.8;
+}
+
+/* Create an active/current "tab button" class */
+.tablinks.active {
+	display: block;
+	color: black;
+	padding: 22px 16px;
+	width: 100%;
+	border: none;
+	outline: none;
+	text-align: left;
+	cursor: pointer;
+	transition: 0.3s;
+	border-radius: 12px;
+	background-color: #ff0000;
+	margin-top: 3px;
+}
+
+.disease_form {
+	padding-left: 16px;
+	padding-bottom: 30px;
+}
