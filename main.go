@@ -87,6 +87,7 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 	}
 	//Set the header's cookies
 	wr.Header().Set("Date", "Mon, 01 Jan 2020 00:00:00 GMT")
+	wr.WriteHeader(http.StatusBadRequest)
 	//Feed the data into the notfound page template and serve it
 	err := notfoundTmpl.Execute(wr, data)
 	if err != nil {
