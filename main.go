@@ -108,9 +108,9 @@ func main() {
 	//Initialize the mux router
 	router := mux.NewRouter().StrictSlash(true)
 	//Set the respective handlers to uri addresses
-	router.HandleFunc("/", http.RedirectHandler("/index.html", 301).ServeHTTP)
-	router.HandleFunc("/dignosis/v1/index.html", dignosisMainHandler).Methods("Get")
-	router.HandleFunc("/dignosis/v1/index.html", dignosisFormHandler).Methods("Post")
+	router.HandleFunc("/", http.RedirectHandler("/diagnosis/v1/index.html", 301).ServeHTTP)
+	router.HandleFunc("/diagnosis/v1/index.html", dignosisMainHandler).Methods("Get")
+	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods("Post")
 	//Set notfound handler function to the wildcard
 	router.HandleFunc("/{*}", notfoundHandler)
 	//Listen to the defined port and serve
