@@ -9,35 +9,19 @@ import (
 
 //Introduce the struct Disease and some method to export its content
 type Disease struct {
-	name     string
-	symptoms []string
-}
-
-func (d *Disease) Name() string {
-	return (*d).name
-}
-
-func (d *Disease) Symptoms() []string {
-	return (*d).symptoms
+	Name     string   `json:"name"`
+	Symptoms []string `json:"symptoms"`
 }
 
 //Introduce the struct Patient and some method to export its content
 type Patient struct {
-	male     bool
-	age      int
-	symptoms []string
-}
-
-func (p *Patient) Age() int {
-	return (*p).age
-}
-
-func (p *Patient) Symptoms() []string {
-	return (*p).symptoms
+	Male     bool     `json:"gen_male"`
+	Age      int      `json:"age"`
+	Symptoms []string `json:"symptoms"`
 }
 
 func (p *Patient) Gender() string {
-	if (*p).male {
+	if (*p).Male {
 		return "Male"
 	}
 	return "Female"
@@ -54,9 +38,9 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	//Check the gender input and set in inside the patient struct
 	switch form.Get("gen") {
 	case "female":
-		p.male = false
+		p.Male = false
 	case "male":
-		p.male = true
+		p.Male = true
 	default:
 		return nil, errors.New("Wrong gender input format!")
 	}
@@ -64,13 +48,13 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	if i, err := strconv.Atoi(form.Get("age")); err != nil {
 		return nil, errors.New("Wrong age input format!")
 	} else {
-		p.age = i
+		p.Age = i
 	}
 	//Check the symptoms input and set in inside the patient struct
 	//This is done through splitting the entry by commas
 	seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
-	p.symptoms = seperator.Split(form.Get("symps"), -1)
-	if len(p.symptoms) == 0 {
+	p.Symptoms = seperator.Split(form.Get("symps"), -1)
+	if len(p.Symptoms) == 0 {
 		return nil, errors.New("Wrong symptom input format!")
 	}
 	//Return the resulting patient struct and nil as the error
@@ -78,8 +62,8 @@ func FormProcess(req *http.Request) (*Patient, error) {
 }
 
 var Cancer = Disease{
-	name: "Cancer",
-	symptoms: []string{
+	Name: "Cancer",
+	Symptoms: []string{
 		"symp1",
 		"symp2",
 		"symp3",
@@ -87,8 +71,8 @@ var Cancer = Disease{
 }
 
 var Aids = Disease{
-	name: "Aids",
-	symptoms: []string{
+	Name: "Aids",
+	Symptoms: []string{
 		"symp3",
 		"symp4",
 		"symp5",
