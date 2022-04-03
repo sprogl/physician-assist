@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -8,16 +9,17 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/sprogl/website/diagnosis"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
-//Here, we define the templates as lobal viriables to be reachable within all functions
+//Here, we define the templates as global viriables to be reachable within all functions
 var rootTmpl *template.Template
 var notfoundTmpl *template.Template
+var db *sql.DB
 var port int = 8080
 
 //Some structs to deal with data used in program
@@ -96,6 +98,8 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	db, err := sql.Open("postgres", "")
+	defer db.Close()
 	//Get the executable's address to find the resources relatively
 	templatesAdress, err := os.Executable()
 	if err != nil {
@@ -114,5 +118,5 @@ func main() {
 	//Set notfound handler function to the wildcard
 	router.HandleFunc("/{*}", notfoundHandler)
 	//Listen to the defined port and serve
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), router))
 }

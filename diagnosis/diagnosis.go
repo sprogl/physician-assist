@@ -15,16 +15,13 @@ type Disease struct {
 
 //Introduce the struct Patient and some method to export its content
 type Patient struct {
-	Male     bool     `json:"gen_male"`
+	Gender   string   `json:"gen"`
 	Age      int      `json:"age"`
-	Symptoms []string `json:"symptoms"`
+	Symptoms []string `json:"symps"`
 }
 
-func (p *Patient) Gender() string {
-	if (*p).Male {
-		return "Male"
-	}
-	return "Female"
+func (p *Patient) IsFemale() bool {
+	return (*p).Gender == "Female"
 }
 
 //This function processes the post request
@@ -38,9 +35,9 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	//Check the gender input and set in inside the patient struct
 	switch form.Get("gen") {
 	case "female":
-		p.Male = false
+		p.Gender = "Female"
 	case "male":
-		p.Male = true
+		p.Gender = "Male"
 	default:
 		return nil, errors.New("Wrong gender input format!")
 	}
