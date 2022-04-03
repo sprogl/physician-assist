@@ -1,10 +1,11 @@
 package diagnosis
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"regexp"
-	"strconv"
 )
 
 //Introduce the struct Disease and some method to export its content
@@ -28,12 +29,20 @@ func (p *Patient) IsFemale() bool {
 //and extracts the sanitized input inside the post request
 func FormProcess(req *http.Request) (*Patient, error) {
 	//Parse the posted form and extract it for further process
-	req.ParseForm()
-	form := req.PostForm
+	jsonDecoder := json.NewDecoder(req.Body)
+	form := struct {
+		Gender   string `json:"gen"`
+		Age      int    `json:"age"`
+		Symptoms string `json:"symps"`
+	}{}
 	//Define the uninitialized patient data
 	var p Patient
+	err := jsonDecoder.Decode(&form)
+	if err != nil {
+		log.Fatal(err)
+	}
 	//Check the gender input and set in inside the patient struct
-	switch form.Get("gen") {
+	switch form.Gender {
 	case "female":
 		p.Gender = "Female"
 	case "male":
@@ -42,15 +51,15 @@ func FormProcess(req *http.Request) (*Patient, error) {
 		return nil, errors.New("Wrong gender input format!")
 	}
 	//Check the age input and set in inside the patient struct
-	if i, err := strconv.Atoi(form.Get("age")); err != nil {
+	if form.Age < 0 || form.Age > 100 {
 		return nil, errors.New("Wrong age input format!")
 	} else {
-		p.Age = i
+		p.Age = form.Age
 	}
 	//Check the symptoms input and set in inside the patient struct
 	//This is done through splitting the entry by commas
 	seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
-	p.Symptoms = seperator.Split(form.Get("symps"), -1)
+	p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
 		return nil, errors.New("Wrong symptom input format!")
 	}
