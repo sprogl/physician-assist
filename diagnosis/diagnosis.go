@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"regexp"
 )
@@ -29,13 +28,6 @@ func (p *Patient) IsFemale() bool {
 //This function processes the post request
 //and extracts the sanitized input inside the post request
 func FormProcess(req *http.Request) (*Patient, error) {
-	//Debug
-	bodyBytes, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		fmt.Println("Err: line 35 of diagnosis")
-		return nil, err
-	}
-	fmt.Println(string(bodyBytes))
 	//Parse the posted form and extract it for further process
 	jsonDecoder := json.NewDecoder(req.Body)
 	form := struct {
@@ -43,9 +35,9 @@ func FormProcess(req *http.Request) (*Patient, error) {
 		Age      int    `json:"age"`
 		Symptoms string `json:"symps"`
 	}{}
-	err = jsonDecoder.Decode(&form)
+	err := jsonDecoder.Decode(&form)
 	if err != nil {
-		fmt.Println("Err: line 48 of diagnosis.go")
+		fmt.Println("Err: line 40 of diagnosis.go")
 		return nil, err
 	}
 	//Define the uninitialized patient data
@@ -57,12 +49,12 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	case "male":
 		p.Gender = "Male"
 	default:
-		fmt.Println("Err: line 60 of diagnosis.go")
+		fmt.Println("Err: line 52 of diagnosis.go")
 		return nil, errors.New("Wrong gender input format!")
 	}
 	//Check the age input and set in inside the patient struct
 	if form.Age < 0 || form.Age > 100 {
-		fmt.Println("Err: line 65 of diagnosis.go")
+		fmt.Println("Err: line 57 of diagnosis.go")
 		return nil, errors.New("Wrong age input format!")
 	} else {
 		p.Age = form.Age
@@ -72,7 +64,7 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
 	p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
-		fmt.Println("Err: line 75 of diagnosis.go")
+		fmt.Println("Err: line 67 of diagnosis.go")
 		return nil, errors.New("Wrong symptom input format!")
 	}
 	//Return the resulting patient struct and nil as the error

@@ -66,7 +66,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//Marshal the input data
 	dataJson, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println("Err: line 68 of main.go")
+		fmt.Println("Err: line 69 of main.go")
 		http.Error(wr, err.Error(), http.StatusBadRequest)
 		return
 	}
