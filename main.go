@@ -63,7 +63,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 		Items: []diagnosis.Disease{diagnosis.Aids, diagnosis.Cancer},
 	}
 	//Marshal the input data
-	dataJason, err := json.Marshal(data)
+	dataJson, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println("Err: line 68 of main")
 		log.Fatal(err)
@@ -72,7 +72,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	wr.Header().Add("Access-Control-Allow-Origin", "*")
 	wr.Header().Set("Content-Type", "application/json")
 	//Feed the data into the result page template and serve it
-	fmt.Fprintf(wr, string(dataJason))
+	fmt.Fprintf(wr, string(dataJson))
 }
 
 //This function handles requests to undefined pages
