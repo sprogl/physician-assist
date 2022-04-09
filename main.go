@@ -7,8 +7,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/sprogl/website/diagnosis"
 
@@ -51,6 +49,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//This passes the post request to the formProcess function and gets the patient struct
 	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
+		fmt.Println("Err: line 52 of main")
 		log.Fatal(err)
 	}
 	//Print out the passed symptoms
@@ -66,6 +65,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//Marshal the input data
 	dataJason, err := json.Marshal(data)
 	if err != nil {
+		fmt.Println("Err: line 68 of main")
 		log.Fatal(err)
 	}
 	//Declare that the response data will be in json format
@@ -99,24 +99,33 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 
 func main() {
 	db, err := sql.Open("postgres", "")
-	defer db.Close()
-	//Get the executable's address to find the resources relatively
-	templatesAdress, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	templatesAdress = filepath.Dir(templatesAdress) + "/templates/"
-	//Read the templates from the respective html files
-	rootTmpl = template.Must(template.ParseFiles(templatesAdress + "index.html"))
-	notfoundTmpl = template.Must(template.ParseFiles(templatesAdress + "notfound.html"))
+	defer db.Close()
+
+	/*
+		//Get the executable's address to find the resources relatively
+		templatesAdress, err := os.Executable()
+		if err != nil {
+			log.Fatal(err)
+		}
+		templatesAdress = filepath.Dir(templatesAdress) + "/templates/"
+		//Read the templates from the respective html files
+		rootTmpl = template.Must(template.ParseFiles(templatesAdress + "index.html"))
+		notfoundTmpl = template.Must(template.ParseFiles(templatesAdress + "notfound.html"))
+
+		//Set the respective handlers to uri addresses
+		router.HandleFunc("/", http.RedirectHandler("/diagnosis/v1/index.html", 301).ServeHTTP)
+		router.HandleFunc("/diagnosis/v1/index.html", dignosisMainHandler).Methods("Get")
+		//Set notfound handler function to the wildcard
+		router.HandleFunc("/{*}", notfoundHandler)
+	*/
+
 	//Initialize the mux router
 	router := mux.NewRouter().StrictSlash(true)
 	//Set the respective handlers to uri addresses
-	router.HandleFunc("/", http.RedirectHandler("/diagnosis/v1/index.html", 301).ServeHTTP)
-	router.HandleFunc("/diagnosis/v1/index.html", dignosisMainHandler).Methods("Get")
 	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods("Post")
-	//Set notfound handler function to the wildcard
-	router.HandleFunc("/{*}", notfoundHandler)
 	//Listen to the defined port and serve
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), router))
 }
