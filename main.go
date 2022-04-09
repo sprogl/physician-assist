@@ -49,7 +49,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//This passes the post request to the formProcess function and gets the patient struct
 	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
-		fmt.Println("Err: line 52 of main")
+		fmt.Println("Err: line 52 of main.go")
 		log.Fatal(err)
 	}
 	//Print out the passed symptoms
@@ -65,7 +65,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//Marshal the input data
 	dataJson, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println("Err: line 68 of main")
+		fmt.Println("Err: line 68 of main.go")
 		log.Fatal(err)
 	}
 	//Declare that the response data will be in json format

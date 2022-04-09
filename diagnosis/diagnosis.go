@@ -43,13 +43,13 @@ func FormProcess(req *http.Request) (*Patient, error) {
 		Age      int    `json:"age"`
 		Symptoms string `json:"symps"`
 	}{}
-	//Define the uninitialized patient data
-	var p Patient
 	err = jsonDecoder.Decode(&form)
 	if err != nil {
-		fmt.Println("Err: line 50 of diagnosis")
+		fmt.Println("Err: line 50 of diagnosis.go")
 		return nil, err
 	}
+	//Define the uninitialized patient data
+	var p Patient
 	//Check the gender input and set in inside the patient struct
 	switch form.Gender {
 	case "female":
@@ -57,12 +57,12 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	case "male":
 		p.Gender = "Male"
 	default:
-		fmt.Println("Err: line 60 of diagnosis")
+		fmt.Println("Err: line 60 of diagnosis.go")
 		return nil, errors.New("Wrong gender input format!")
 	}
 	//Check the age input and set in inside the patient struct
 	if form.Age < 0 || form.Age > 100 {
-		fmt.Println("Err: line 65 of diagnosis")
+		fmt.Println("Err: line 65 of diagnosis.go")
 		return nil, errors.New("Wrong age input format!")
 	} else {
 		p.Age = form.Age
@@ -72,7 +72,7 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
 	p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
-		fmt.Println("Err: line 75 of diagnosis")
+		fmt.Println("Err: line 75 of diagnosis.go")
 		return nil, errors.New("Wrong symptom input format!")
 	}
 	//Return the resulting patient struct and nil as the error
