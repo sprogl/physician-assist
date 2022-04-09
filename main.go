@@ -50,7 +50,8 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
 		fmt.Println("Err: line 52 of main.go")
-		log.Fatal(err)
+		http.Error(wr, err.Error(), http.StatusBadRequest)
+		return
 	}
 	//Print out the passed symptoms
 	symps := pat.Symptoms
@@ -66,7 +67,8 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	dataJson, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println("Err: line 68 of main.go")
-		log.Fatal(err)
+		http.Error(wr, err.Error(), http.StatusBadRequest)
+		return
 	}
 	//Declare that the response data will be in json format
 	wr.Header().Add("Access-Control-Allow-Origin", "*")

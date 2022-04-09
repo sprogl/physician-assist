@@ -45,7 +45,7 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	}{}
 	err = jsonDecoder.Decode(&form)
 	if err != nil {
-		fmt.Println("Err: line 50 of diagnosis.go")
+		fmt.Println("Err: line 48 of diagnosis.go")
 		return nil, err
 	}
 	//Define the uninitialized patient data
