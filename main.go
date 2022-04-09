@@ -69,6 +69,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	//Declare that the response data will be in json format
+	wr.Header().Add("Access-Control-Allow-Origin", "*")
 	wr.Header().Set("Content-Type", "application/json")
 	//Feed the data into the result page template and serve it
 	fmt.Fprintf(wr, string(dataJason))
