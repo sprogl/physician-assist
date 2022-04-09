@@ -28,6 +28,8 @@ func (p *Patient) IsFemale() bool {
 //This function processes the post request
 //and extracts the sanitized input inside the post request
 func FormProcess(req *http.Request) (*Patient, error) {
+	//Debug
+	fmt.Println(req.Body)
 	//Parse the posted form and extract it for further process
 	jsonDecoder := json.NewDecoder(req.Body)
 	form := struct {
