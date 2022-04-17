@@ -1,10 +1,12 @@
 import React from 'react';
 import './App.css';
-import Form from './components/Form';
+import TopAppBar from './components/Appbar/TopAppBar';
+import Form from './components/Form/Form';
 
 function App() {
   return (
     <div className="App">
+      <TopAppBar />
       <Form />
     </div>
   );
