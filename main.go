@@ -1,23 +1,24 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/sprogl/website/diagnosis"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4"
 )
 
 //Here, we define the templates as global viriables to be reachable within all functions
 var rootTmpl *template.Template
 var notfoundTmpl *template.Template
-var db *sql.DB
+var dbconn *pgx.Conn
 var port int = 8080
 
 //Some structs to deal with data used in program
@@ -49,7 +50,7 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//This passes the post request to the formProcess function and gets the patient struct
 	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
-		fmt.Println("Err: line 52 of main.go")
+		fmt.Println("Err: line 53 of main.go")
 		http.Error(wr, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -58,15 +59,21 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	for i := 0; i < len(symps); i++ {
 		fmt.Println(symps[i])
 	}
-	//Prepare the data to feed into the template
-	//In this case it contains the title of the page and matched disease
-	data := resultPage{
-		Items: []diagnosis.Disease{diagnosis.Aids, diagnosis.Cancer},
-	}
-	//Marshal the input data
-	dataJson, err := json.Marshal(data)
+	//Analyse the symtoms and get the list of matched diseases
+	diseases, err := pat.Diagnose(dbconn)
 	if err != nil {
-		fmt.Println("Err: line 69 of main.go")
+		fmt.Println("Err: line 65 of main.go")
+		http.Error(wr, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//Prepare the data to feed into the template
+	//In this case it contains a list of matched disease and
+	//Marshal the input data
+	dataJson, err := json.Marshal(resultPage{
+		Items: diseases,
+	})
+	if err != nil {
+		fmt.Println("Err: line 76 of main.go")
 		http.Error(wr, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -101,11 +108,14 @@ func notfoundHandler(wr http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	db, err := sql.Open("postgres", "")
+	//Get the databse address from the environment variables
+	DBAdrress := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("DBUSER"), os.Getenv("DBPASS"), os.Getenv("DBIP"), os.Getenv("DBPORT"), os.Getenv("DATABASE"))
+	//Initiate the database connection
+	dbconn, err := pgx.Connect(context.Background(), DBAdrress)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer dbconn.Close(context.Background())
 
 	/*
 		//Get the executable's address to find the resources relatively

@@ -74,8 +74,8 @@ function Form() {
   ]})
 
   const handleSubmit = (e) => {
-    e.preventDefault();      
-    axios.post('/diagnosis/v1/index.html', formValues, {
+    e.preventDefault();
+    axios.post('/diagnosis/v1/index.html', {...formValues, age: parseInt(formValues.age)}, {
       headers: {
       'Content-Type': 'application/json'
       },

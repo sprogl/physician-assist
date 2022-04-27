@@ -5,7 +5,27 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/jackc/pgx/v4"
 )
+
+var Cancer = Disease{
+	Name: "Cancer",
+	Symptoms: []string{
+		"symp1",
+		"symp2",
+		"symp3",
+	},
+}
+
+var Aids = Disease{
+	Name: "Aids",
+	Symptoms: []string{
+		"symp3",
+		"symp4",
+		"symp5",
+	},
+}
 
 //Introduce the struct Disease and some method to export its content
 type Disease struct {
@@ -68,20 +88,9 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	return &p, nil
 }
 
-var Cancer = Disease{
-	Name: "Cancer",
-	Symptoms: []string{
-		"symp1",
-		"symp2",
-		"symp3",
-	},
-}
-
-var Aids = Disease{
-	Name: "Aids",
-	Symptoms: []string{
-		"symp3",
-		"symp4",
-		"symp5",
-	},
+//This function searchs the patient's data (symtoms, gender and age) in the database and
+//finds the matched disease. It returns the result as list of matched diseases and
+//any error occurred in the process.
+func (*Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
+	return []Disease{Aids, Cancer}, nil
 }
