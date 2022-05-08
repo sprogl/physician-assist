@@ -10,13 +10,14 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.26.1",
+    "cross-env": "^7.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
     "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env DIAGAPIIP=$DIAGAPIIP DIAGAPIPORT=$DIAGAPIPORT react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
