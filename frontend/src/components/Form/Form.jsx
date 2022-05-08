@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import useStyles from './styles'
 import Tags from './Tags';
 import axios from 'axios';
+import env from "react-dotenv";
 
 const defaultValues = {
   age: 0,
@@ -75,7 +76,8 @@ function Form() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post(`http://${process.env.DIAGAPIIP}:${process.env.DIAGAPIPORT}/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
+    console.log(`http://${env.DIAGAPIIP}:${env.DIAGAPIPORT}/diagnosis/v1/index.html`)
+    axios.post(`http://${env.DIAGAPIIP}:${env.DIAGAPIPORT}/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
       headers: {
       'Content-Type': 'application/json'
       },

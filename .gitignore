@@ -25,7 +25,6 @@ frontend/.pnp.js
 
 # testing
 frontend/coverage
-
 # production
 frontend/build
 
@@ -35,6 +34,7 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
+frontend/.env
 
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
