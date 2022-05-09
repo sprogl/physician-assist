@@ -19,7 +19,6 @@ import (
 var rootTmpl *template.Template
 var notfoundTmpl *template.Template
 var dbconn *pgx.Conn
-var port int = 8080
 
 //Some structs to deal with data used in program
 type resultPage struct {
@@ -140,5 +139,5 @@ func main() {
 	//Set the respective handlers to uri addresses
 	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods("Post")
 	//Listen to the defined port and serve
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("APIPORT")), router))
 }

@@ -76,7 +76,7 @@ function Form() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post(`http://${env.DIAGAPIIP}:${env.DIAGAPIPORT}/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
+    axios.post(`/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
       headers: {
       'Content-Type': 'application/json'
       },
@@ -87,10 +87,6 @@ function Form() {
     .then(res => setResData({...resData, ...res.data}))
     
   };
-
-  useEffect(() => {
-    console.log(resData)
-  }, [resData])
   
 
   return (
