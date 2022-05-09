@@ -139,5 +139,5 @@ func main() {
 	//Set the respective handlers to uri addresses
 	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods("Post")
 	//Listen to the defined port and serve
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("APIPORT")), router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("DIAGAPIPORT")), router))
 }
