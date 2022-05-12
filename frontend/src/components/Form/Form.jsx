@@ -1,15 +1,41 @@
-import { Button, FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, TextField } from '@material-ui/core'
-import { useEffect, useState } from 'react'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import AcUnitIcon from '@material-ui/icons/AcUnit';
+import React, { useState } from 'react'
 import useStyles from './styles'
 import Tags from './Tags';
 import axios from 'axios';
-import env from "react-dotenv";
 
 const defaultValues = {
   age: 0,
   gen: "female",
   symps: []
 };
+
+const AccordionSection = (props) => {
+  const {item} = props
+  return (
+    <Accordion expanded={true}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        <Typography sx={{fondSize: '15rem'}}>{item.name}</Typography>
+      </AccordionSummary>
+      {item.symptoms.map((symp) => (
+        <AccordionDetails key={symp}>
+          <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<AcUnitIcon />}
+        >
+          {symp}
+        </Button>
+      </AccordionDetails>
+      ))}
+    </Accordion>
+  )}
 
 const GenderComponent = ({formValues, handleInputChange}) => {
   return (
@@ -57,7 +83,7 @@ function Form() {
   const classes = useStyles()
   
   const [formValues, setFormValues] = useState(defaultValues);
-  
+  const [isNewData, setIsNewData] = useState(false)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({
@@ -74,9 +100,9 @@ function Form() {
       }
   ]})
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    axios.post(`/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
+    const data = await axios.post(`/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
       headers: {
       'Content-Type': 'application/json'
       },
@@ -84,8 +110,8 @@ function Form() {
       cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
       credentials: 'same-origin', // include, *same-origin, omit
     })
-    .then(res => setResData({...resData, ...res.data}))
-    
+    setResData({...resData, ...data.data})
+    setIsNewData(true)  
   };
   
 
@@ -108,14 +134,14 @@ function Form() {
         </Grid>
       </form>
 
-      <Grid container alignItems="center" justifyContent="center" direction="column">
-          <div>{undefined || resData["diseases"][0].name}</div>
+      {/* <Box alignItems="center" justifyContent="center" direction="column"> */}
+          {/* <div>{undefined || resData["diseases"][0].name}</div> */}
           {/* <div>{undefined || resData["diseases"][1].name}</div> */}
 
-          {resData.diseases.map((item, index) => {
-            <Grid item key={index}>{item.name}</Grid>
-          })}
-      </Grid>
+          {isNewData && resData["diseases"].map((item, index) => 
+            <AccordionSection key={index} item={item} />
+          )}
+      {/* </Box> */}
     </Paper>
   )
 }

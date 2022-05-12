@@ -25,7 +25,7 @@ export default function TopAppBar() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
-                        Project Vahid
+                        DocAssist
                     </Typography>
                     <Button color="inherit">Login</Button>
                 </Toolbar>
