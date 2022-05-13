@@ -10,6 +10,24 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var Cancer = Disease{
+	Name: "Cancer",
+	Symptoms: []string{
+		"symp1",
+		"symp2",
+		"symp3",
+	},
+}
+
+var Aids = Disease{
+	Name: "Aids",
+	Symptoms: []string{
+		"symp3",
+		"symp4",
+		"symp5",
+	},
+}
+
 //Introduce the struct Disease and some method to export its content
 type Disease struct {
 	Name     string   `json:"name"`
@@ -71,7 +89,7 @@ func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
 	var d Disease
 	//Loop over the rows ofdatabase response and populate the disease slice with the return data
 	for rows.Next() {
-		err := rows.Scan(&d.Name...) //TODO
+		err := rows.Scan(&d.Name) //TODO
 		if err != nil {
 			fmt.Println("Err: line 105 of diagnosis.go")
 			return nil, err
