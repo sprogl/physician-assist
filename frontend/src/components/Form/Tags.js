@@ -7,6 +7,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Chip from "@material-ui/core/Chip";
 import { ListSubheader } from "@material-ui/core";
+import Symptoms from './symptomList.json'
 
 const useStyles = makeStyles((theme) => ({
 	formControl: {
@@ -26,24 +27,26 @@ const useStyles = makeStyles((theme) => ({
 export default function MultipleSelect({ formValues, setFormValues }) {
 	const classes = useStyles();
 
-	const [personName, setPersonName] = useState([]);
+	const [symptomName, setSymptomName] = useState([Symptoms[Symptoms.length - 1]]);
+	// const [symptomName, setSymptomName] = useState([formValues.symps]); // TODO: initialize the symptom from the Form component & not here
+
 	const handleChange = (event) => {
-		setPersonName(event.target.value);
+		setSymptomName(event.target.value);
 		setFormValues({
 			...formValues,
 			[event.target.name]: event.target.value,
 		});
 	};
 
-	const renderSelectGroup = (cats, index) => {
-		const items = cats.symps.map((p) => {
+	const renderSelectGroup = (cats) => {
+		const items = cats.map((p) => {
 			return (
 				<MenuItem key={p} value={p}>
 					{p}
 				</MenuItem>
 			);
 		});
-		return [<ListSubheader key={index}>{cats.category}</ListSubheader>, items];
+		return [items];
 	};
 
 	return (
@@ -55,7 +58,7 @@ export default function MultipleSelect({ formValues, setFormValues }) {
 					id="select-multiple-chip"
 					multiple
 					name="symps"
-					value={personName}
+					value={symptomName}
 					onChange={handleChange}
 					input={<Input id="select-multiple-chip" />}
 					renderValue={(selected) => (
@@ -66,53 +69,9 @@ export default function MultipleSelect({ formValues, setFormValues }) {
 						</div>
 					)}
 				>
-					{Symptoms?.map((p, index) => renderSelectGroup(p, index))}
+					{renderSelectGroup(Symptoms)}
 				</Select>
 			</FormControl>
 		</div>
 	);
 }
-
-const Symptoms = [
-	{
-		category: "My ... hearts:",
-		symps: [
-			"Stomache",
-			"Head",
-			"Abdomen",
-			"Back",
-			"Chest",
-			"Ear",
-			"Pelvis",
-			"Tooth",
-			"Rectum",
-			"Skin",
-			"Leg",
-			"Chronic pain",
-		],
-	},
-	{
-		category: "I feel:",
-		symps: [
-			"Chills",
-			"Fever",
-			"Paresthesia (numbness, tingling, electric tweaks)",
-			"Light-headed",
-			"Dizzy",
-			"Dizzy – about to black out",
-			"Dizzy – with the room spinning around me",
-			"My mouth is dry",
-			"Nauseated",
-			"Sick",
-			"like I have the flu",
-			"like I have to vomit",
-			"Short of breath",
-			"Sleepy",
-			"Sweaty",
-			"Thirsty",
-			"Tired",
-			"Weak",
-			"Goh Gije",
-		],
-	},
-];

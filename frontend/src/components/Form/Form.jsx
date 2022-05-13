@@ -1,21 +1,40 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import AcUnitIcon from '@material-ui/icons/AcUnit';
 import React, { useState } from 'react'
 import useStyles from './styles'
 import Tags from './Tags';
 import axios from 'axios';
+import { Accordion, AccordionDetails, AccordionSummary, Button, FormControl, FormControlLabel, FormLabel, Grid, List, ListItem, ListItemIcon, ListItemText, Paper, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
 const defaultValues = {
-  age: 0,
+  age: 11,
   gen: "female",
-  symps: []
+  symps: ['Goh Gije']
 };
 
+const SymptomList = React.memo(function SymptomList(props) {
+  const {sympName} = props
+  return (
+    <List component="nav" aria-label="contacts">
+      <ListItem button>
+        <ListItemIcon>
+          <CheckCircleOutlineIcon />
+        </ListItemIcon>
+        <ListItemText primary={sympName} />
+      </ListItem>
+    </List>
+  );
+})
+
 const AccordionSection = (props) => {
+  const [isExpanded, setIsExpanded] = useState(true)
+
+  const handleAccordionExpanded = () => {
+    setIsExpanded(!isExpanded)
+  }
   const {item} = props
   return (
-    <Accordion expanded={true}>
+    <Accordion onClick={handleAccordionExpanded} expanded={isExpanded}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1a-content"
@@ -23,17 +42,11 @@ const AccordionSection = (props) => {
       >
         <Typography sx={{fondSize: '15rem'}}>{item.name}</Typography>
       </AccordionSummary>
-      {item.symptoms.map((symp) => (
-        <AccordionDetails key={symp}>
-          <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<AcUnitIcon />}
-        >
-          {symp}
-        </Button>
+      <AccordionDetails>
+        <div>
+          {item.symptoms.map((symp, i) => <SymptomList key={i} sympName={symp} /> )}
+        </div>
       </AccordionDetails>
-      ))}
     </Accordion>
   )}
 
@@ -133,15 +146,9 @@ function Form() {
           </Button>
         </Grid>
       </form>
-
-      {/* <Box alignItems="center" justifyContent="center" direction="column"> */}
-          {/* <div>{undefined || resData["diseases"][0].name}</div> */}
-          {/* <div>{undefined || resData["diseases"][1].name}</div> */}
-
-          {isNewData && resData["diseases"].map((item, index) => 
-            <AccordionSection key={index} item={item} />
-          )}
-      {/* </Box> */}
+      {isNewData && resData["diseases"].map((item, index) => 
+        <AccordionSection key={index} item={item} />
+      )}
     </Paper>
   )
 }
