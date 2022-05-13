@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sprogl/website/diagnosis"
+	"github.com/sprogl/website/diag_api/diagnosis"
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"

@@ -1,10 +1,11 @@
-module github.com/sprogl/website
+module github.com/sprogl/website/diag_api
 
 go 1.18
 
 require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v4 v4.16.1
+	github.com/sprogl/website/diag_api
 )
 
 require (
