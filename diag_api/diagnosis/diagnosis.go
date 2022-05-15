@@ -59,13 +59,13 @@ func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
 			FROM ((
 				SELECT diag_table.dis_id AS disease_id
 				FROM symps_table INNER JOIN diag_table ON symps_table.id=diag_table.symp_id
-				WHERE (diag_table.gen IS NULL OR diag_table.gen=$1) AND (diag_table.age_min <= $2 AND diag_table.age_max >= $2) AND (symps_table.name IN $3)
-			) INNER JOIN diag_table ON diag_table.dis_id=disease_id)
-		) INNER JOIN symps_table ON symp_id=symps_table.id
-	) INNER JOIN dis_table ON dis_id=dis_table.id
+				WHERE (diag_table.gen IS NULL OR diag_table.gen=$1) AND (diag_table.age_min <= $2 AND diag_table.age_max >= $2) AND (symps_table.name = ANY($3))
+			) As q_table1 INNER JOIN diag_table ON diag_table.dis_id=q_table1.disease_id)
+		) As q_table2 INNER JOIN symps_table ON q_table2.symp_id=symps_table.id
+	) As q_table3 INNER JOIN dis_table ON q_table3.dis_id=dis_table.id
 	ORDER By Disease;
 	`
-	rows, err := dbconn.Query(context.Background(), mainQ, []interface{}{pat.Gender, pat.Age, pat.Symptoms}) //ToDO
+	rows, err := dbconn.Query(context.Background(), mainQ, pat.Gender, pat.Age, pat.Symptoms)
 	if err != nil {
 		fmt.Println("Err: line 70 of diagnosis.go")
 		return nil, err
@@ -80,11 +80,14 @@ func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
 	for rows.Next() {
 		err := rows.Scan(&s1, &s2)
 		if err != nil {
-			fmt.Println("Err: line 84 of diagnosis.go")
+			fmt.Println("Err: line 83 of diagnosis.go")
 			return nil, err
 		}
 		if s1 == d.Name {
 			d.Symptoms = append(d.Symptoms, s2)
+		} else if d.Name == "" {
+			d.Name = s1
+			d.Symptoms = []string{s2}
 		} else {
 			ds = append(ds, d)
 			d.Name = s1
