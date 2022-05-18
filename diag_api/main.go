@@ -59,17 +59,18 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	//Declare that the response data will be in json format
-	// wr.Header().Add("Access-Control-Allow-Origin", "*")
+	wr.Header().Add("Access-Control-Allow-Origin", "*")
 	wr.Header().Set("Content-Type", "application/json")
 	//Feed the data into the result page template and serve it
-	fmt.Fprintf(wr, string(dataJson))
+	fmt.Fprint(wr, string(dataJson))
 }
 
 func main() {
+	var err error
 	//Get the databse address from the environment variables
 	DBAdrress := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("DBUSER"), os.Getenv("DBPASS"), os.Getenv("DBIP"), os.Getenv("DBPORT"), os.Getenv("DATABASE"))
 	//Initiate the database connection
-	dbconn, err := pgx.Connect(context.Background(), DBAdrress)
+	dbconn, err = pgx.Connect(context.Background(), DBAdrress)
 	if err != nil {
 		fmt.Println("Err: line 74 of main.go")
 		log.Fatal(err)

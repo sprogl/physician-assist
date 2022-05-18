@@ -40,23 +40,23 @@ func TestDiagnose(t *testing.T) {
 	}
 	defer dbconn.Close(context.Background())
 	initQs := []string{
-		"DROP TABLE symps_table_test;",
-		"DROP TABLE dis_table_test;",
-		"DROP TABLE diag_table_test;",
+		"DROP TABLE IF EXISTS symps_table;",
+		"DROP TABLE IF EXISTS dis_table;",
+		"DROP TABLE IF EXISTS diag_table;",
 		`
-		CREATE TABLE symps_table_test(
+		CREATE TABLE symps_table(
 			id int not null unique,
 			name varchar(64) not null,
 			primary key(id)
 		);`,
 		`
-		CREATE TABLE dis_table_test(
+		CREATE TABLE dis_table(
 			id int not null unique,
 			name varchar(64) not null,
 			primary key(id)
 		);`,
 		`
-		CREATE TABLE diag_table_test(
+		CREATE TABLE diag_table(
 			symp_id int not null,
 			dis_id int not null,
 			gen varchar(6),
@@ -64,55 +64,55 @@ func TestDiagnose(t *testing.T) {
 			age_min int not null
 		);`,
 		`	
-		INSERT INTO symps_table_test
+		INSERT INTO symps_table
 		VALUES (
 			0,
 			'Goh Gije'
 		);`,
 		`	
-		INSERT INTO symps_table_test
+		INSERT INTO symps_table
 		VALUES (
 			1,
 			'Chet'
 		);`,
 		`		
-		INSERT INTO symps_table_test
+		INSERT INTO symps_table
 		VALUES (
 			2,
 			'Pare'
 		);`,
 		`	
-		INSERT INTO symps_table_test
+		INSERT INTO symps_table
 		VALUES (
 			3,
 			'Kap khoshkak'
 		);`,
 		`	
-		INSERT INTO dis_table_test
+		INSERT INTO dis_table
 		VALUES (
 			0,
 			'Aids'
 		);`,
 		`	
-		INSERT INTO dis_table_test
+		INSERT INTO dis_table
 		VALUES (
 			1,
 			'Cancer'
 		);`,
 		`	
-		INSERT INTO dis_table_test
+		INSERT INTO dis_table
 		VALUES (
 			2,
 			'Koor'
 		);`,
 		`	
-		INSERT INTO dis_table_test
+		INSERT INTO dis_table
 		VALUES (
 			3,
 			'Kachali'
 		);`,
 		`	
-		INSERT INTO diag_table_test
+		INSERT INTO diag_table
 		VALUES (
 			0,
 			1,
@@ -121,7 +121,7 @@ func TestDiagnose(t *testing.T) {
 			20
 		);`,
 		`	
-		INSERT INTO diag_table_test
+		INSERT INTO diag_table
 		VALUES (
 			3,
 			1,
@@ -130,7 +130,7 @@ func TestDiagnose(t *testing.T) {
 			20
 		);`,
 		`	
-		INSERT INTO diag_table_test
+		INSERT INTO diag_table
 		VALUES (
 			2,
 			0,
@@ -139,7 +139,7 @@ func TestDiagnose(t *testing.T) {
 			20
 		);`,
 		`	
-		INSERT INTO diag_table_test
+		INSERT INTO diag_table
 		VALUES (
 			1,
 			3,
@@ -148,7 +148,7 @@ func TestDiagnose(t *testing.T) {
 			18
 		);`,
 		`	
-		INSERT INTO diag_table_test
+		INSERT INTO diag_table
 		VALUES (
 			2,
 			3,

@@ -48,7 +48,7 @@ func (pat *Patient) IsFemale() bool {
 //This function searchs the patient's data (symtoms, gender and age) in the database and
 //finds the matched disease. It returns the result as list of matched diseases and
 //any error occurred in the process.
-func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
+func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	//Query to the diseases database
 	mainQ := `
 	SELECT name AS Disease, Symptom
@@ -65,7 +65,7 @@ func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
 	) As q_table3 INNER JOIN dis_table ON q_table3.dis_id=dis_table.id
 	ORDER By Disease;
 	`
-	rows, err := dbconn.Query(context.Background(), mainQ, pat.Gender, pat.Age, pat.Symptoms)
+	rows, err := conn.Query(context.Background(), mainQ, (*pat).Gender, (*pat).Age, (*pat).Symptoms)
 	if err != nil {
 		fmt.Println("Err: line 70 of diagnosis.go")
 		return nil, err
@@ -96,6 +96,7 @@ func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
 	}
 	ds = append(ds, d)
 	//Return the result
+	// return ds, nil
 	return ds, nil
 }
 
