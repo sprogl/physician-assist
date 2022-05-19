@@ -94,7 +94,9 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 			d.Symptoms = []string{s2}
 		}
 	}
-	ds = append(ds, d)
+	if d.Name != "" {
+		ds = append(ds, d)
+	}
 	//Return the result
 	// return ds, nil
 	return ds, nil
