@@ -45,59 +45,59 @@ func (pat *Patient) IsFemale() bool {
 	return (*pat).Gender == "Female"
 }
 
-func (pat *Patient) SympsCode(dbconn *pgx.Conn) ([]byte, error) {
-	codeLength, err := SympsCodeLength(dbconn)
-	if err != nil {
-		fmt.Println("Err: line 139 of diagnosis.go")
-		return nil, err
-	}
-	code := make([]byte, codeLength)
-	rows, err := dbconn.Query(context.Background(), "SELECT id FROM symptoms_table WHERE symp IN $1;", []interface{}{(*pat).Symptoms})
-	if err != nil {
-		fmt.Println("Err: line 145 of diagnosis.go")
-		return nil, err
-	}
-	defer rows.Close()
-	var id int
-	for rows.Next() {
-		err = rows.Scan(&id)
-		if err != nil {
-			fmt.Println("Err: line 153 of diagnosis.go")
-			return nil, err
-		}
-		codeIndex := id / 8
-		code[codeIndex] |= (1 << (id % 8))
-	}
-	return code, nil
-}
-
 //This function searchs the patient's data (symtoms, gender and age) in the database and
 //finds the matched disease. It returns the result as list of matched diseases and
 //any error occurred in the process.
-func (pat *Patient) Diagnose(dbconn *pgx.Conn) ([]Disease, error) {
+func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	//Query to the diseases database
-	rows, err := dbconn.Query(context.Background(),
-		"SELECT name, gen, age_min, age_max, code FROM disease_table	WHERE (gen IS NULL OR gen = $1) AND (age_min <= $2 AND age_max > $2) AND ();",
-		[]interface{}{3}...) //ToDO
+	mainQ := `
+	SELECT name AS Disease, Symptom
+	FROM (
+		SELECT dis_id, name AS Symptom
+		FROM (
+			SELECT symp_id, dis_id
+			FROM ((
+				SELECT diag_table.dis_id AS disease_id
+				FROM symps_table INNER JOIN diag_table ON symps_table.id=diag_table.symp_id
+				WHERE (diag_table.gen IS NULL OR diag_table.gen=$1) AND (diag_table.age_min <= $2 AND diag_table.age_max >= $2) AND (symps_table.name = ANY($3))
+			) As q_table1 INNER JOIN diag_table ON diag_table.dis_id=q_table1.disease_id)
+		) As q_table2 INNER JOIN symps_table ON q_table2.symp_id=symps_table.id
+	) As q_table3 INNER JOIN dis_table ON q_table3.dis_id=dis_table.id
+	ORDER By Disease;
+	`
+	rows, err := conn.Query(context.Background(), mainQ, (*pat).Gender, (*pat).Age, (*pat).Symptoms)
 	if err != nil {
-		fmt.Println("Err: line 94 of diagnosis.go")
+		fmt.Println("Err: line 70 of diagnosis.go")
 		return nil, err
 	}
 	defer rows.Close()
 	//Define the uninitialized disease (d) and disease slice (ds)
 	var ds []Disease
 	var d Disease
+	var s1 string
+	var s2 string
 	//Loop over the rows ofdatabase response and populate the disease slice with the return data
 	for rows.Next() {
-		err := rows.Scan(&d.Name) //TODO
+		err := rows.Scan(&s1, &s2)
 		if err != nil {
-			fmt.Println("Err: line 105 of diagnosis.go")
+			fmt.Println("Err: line 83 of diagnosis.go")
 			return nil, err
 		}
-		ds = append(ds, d)
+		if s1 == d.Name {
+			d.Symptoms = append(d.Symptoms, s2)
+		} else if d.Name == "" {
+			d.Name = s1
+			d.Symptoms = []string{s2}
+		} else {
+			ds = append(ds, d)
+			d.Name = s1
+			d.Symptoms = []string{s2}
+		}
 	}
+	ds = append(ds, d)
 	//Return the result
-	return []Disease{Aids, Cancer}, nil //TODO
+	// return ds, nil
+	return ds, nil
 }
 
 //This function processes the post request
@@ -109,7 +109,7 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	jsonDecoder := json.NewDecoder(req.Body)
 	err := jsonDecoder.Decode(&p)
 	if err != nil {
-		fmt.Println("Err: line 57 of diagnosis.go")
+		fmt.Println("Err: line 109 of diagnosis.go")
 		return nil, err
 	}
 	//Check the gender input and set it inside the patient struct
@@ -119,12 +119,12 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	case "male":
 		p.Gender = "Male"
 	default:
-		fmt.Println("Err: line 67 of diagnosis.go")
+		fmt.Println("Err: line 119 of diagnosis.go")
 		return nil, errors.New("wrong gender input format")
 	}
 	//Check the age input and set in inside the patient struct
 	if p.Age < 0 || p.Age > 150 {
-		fmt.Println("Err: line 72 of diagnosis.go")
+		fmt.Println("Err: line 124 of diagnosis.go")
 		return nil, errors.New("wrong age input format")
 	}
 	//Check the symptoms input and set in inside the patient struct
@@ -132,29 +132,9 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	// seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
 	// p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
-		fmt.Println("Err: line 80 of diagnosis.go")
+		fmt.Println("Err: line 132 of diagnosis.go")
 		return nil, errors.New("empty list of symptoms")
 	}
 	//Return the resulting patient struct and nil as the error
 	return &p, nil
-}
-
-func SympsCodeLength(dbconn *pgx.Conn) (int, error) {
-	var MaxID int
-	rows, err := dbconn.Query(context.Background(), "SELECT MAX(id) FROM symptoms_table;", []interface{}{})
-	if err != nil {
-		fmt.Println("Err: line 120 of diagnosis.go")
-		return 0, err
-	}
-	defer rows.Close()
-	err = rows.Scan(&MaxID)
-	if err != nil {
-		fmt.Println("Err: line 126 of diagnosis.go")
-		return 0, err
-	}
-	codeLength := (MaxID + 1) / 8
-	if MaxID-(codeLength*8)+1 > 0 {
-		codeLength += 1
-	}
-	return codeLength, nil
 }
