@@ -36,16 +36,14 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 	//This passes the post request to the formProcess function and gets the patient struct
 	pat, err := diagnosis.FormProcess(req)
 	if err != nil {
-		fmt.Println("Err: line 39 of main.go")
 		http.Error(wr, err.Error(), http.StatusBadRequest)
 		return
 	}
 	//Analyse the symtoms and get the list of matched diseases
 	diseases, err := pat.Diagnose(dbconn)
 	if err != nil {
-		fmt.Println("Err: line 46 of main.go")
-		http.Error(wr, err.Error(), http.StatusInternalServerError)
-		return
+		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
+		log.Fatal(err)
 	}
 	//Prepare the data to feed into the template
 	//In this case it contains a list of matched disease and
@@ -54,9 +52,8 @@ func dignosisFormHandler(wr http.ResponseWriter, req *http.Request) {
 		Items: diseases,
 	})
 	if err != nil {
-		fmt.Println("Err: line 57 of main.go")
-		http.Error(wr, err.Error(), http.StatusInternalServerError)
-		return
+		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
+		log.Fatal(err)
 	}
 	//Declare that the response data will be in json format
 	wr.Header().Add("Access-Control-Allow-Origin", "*")
@@ -72,18 +69,16 @@ func main() {
 	//Initiate the database connection
 	dbconn, err = pgx.Connect(context.Background(), DBAdrress)
 	if err != nil {
-		fmt.Println("Err: line 74 of main.go")
 		log.Fatal(err)
 	}
 	defer dbconn.Close(context.Background())
 	//Initialize the mux router
 	router := mux.NewRouter().StrictSlash(true)
 	//Set the respective handlers to uri addresses
-	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods("Post")
+	router.HandleFunc("/diagnosis/v1/index.html", dignosisFormHandler).Methods(http.MethodPost)
 	//Listen to the defined port and serve
 	err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("DIAGAPIPORT")), router)
 	if err != nil {
-		fmt.Println("err: line 85 of main.go")
 		log.Fatal(err)
 	}
 }

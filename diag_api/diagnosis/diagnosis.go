@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/jackc/pgx/v4"
@@ -67,7 +66,6 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	`
 	rows, err := conn.Query(context.Background(), mainQ, (*pat).Gender, (*pat).Age, (*pat).Symptoms)
 	if err != nil {
-		fmt.Println("Err: line 70 of diagnosis.go")
 		return nil, err
 	}
 	defer rows.Close()
@@ -80,7 +78,6 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	for rows.Next() {
 		err := rows.Scan(&s1, &s2)
 		if err != nil {
-			fmt.Println("Err: line 83 of diagnosis.go")
 			return nil, err
 		}
 		if s1 == d.Name {
@@ -109,7 +106,6 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	jsonDecoder := json.NewDecoder(req.Body)
 	err := jsonDecoder.Decode(&p)
 	if err != nil {
-		fmt.Println("Err: line 109 of diagnosis.go")
 		return nil, err
 	}
 	//Check the gender input and set it inside the patient struct
@@ -119,12 +115,10 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	case "male":
 		p.Gender = "Male"
 	default:
-		fmt.Println("Err: line 119 of diagnosis.go")
 		return nil, errors.New("wrong gender input format")
 	}
 	//Check the age input and set in inside the patient struct
 	if p.Age < 0 || p.Age > 150 {
-		fmt.Println("Err: line 124 of diagnosis.go")
 		return nil, errors.New("wrong age input format")
 	}
 	//Check the symptoms input and set in inside the patient struct
@@ -132,7 +126,6 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	// seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
 	// p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
-		fmt.Println("Err: line 132 of diagnosis.go")
 		return nil, errors.New("empty list of symptoms")
 	}
 	//Return the resulting patient struct and nil as the error
