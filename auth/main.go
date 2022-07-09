@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/ed25519"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -50,7 +51,7 @@ func logInHandler(wr http.ResponseWriter, req *http.Request) {
 	const authQuery = `
 SELECT count(id), id AS userID
 FROM user_table
-WHERE email=$1 AND password=$2;
+WHERE email=$1 AND password_hash=$2;
 `
 	var claims = jwt.StandardClaims{
 		Issuer: "Docassist aut",
@@ -66,7 +67,9 @@ WHERE email=$1 AND password=$2;
 		http.Error(wr, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	rows, err := dbconn.Query(context.Background(), authQuery, l.Email, l.Password)
+	passHash := sha256.Sum256([]byte(l.Password))
+	passHashBase64 := base64.StdEncoding.EncodeToString(passHash[:])
+	rows, err := dbconn.Query(context.Background(), authQuery, l.Email, passHashBase64)
 	if err != nil {
 		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
 		log.Fatal(err)
@@ -93,7 +96,7 @@ WHERE email=$1 AND password=$2;
 	signedToken, err := token.SignedString(privKey)
 	if err != nil {
 		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
-		return
+		log.Fatal(err)
 	}
 	//Feed the data into the result page template and serve it
 	wr.WriteHeader(http.StatusOK)
