@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sprogl/website/diag_api/diagnosis"
+	diagnosis "github.com/sprogl/website/diag_api/diagnosis"
 
-	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4"
+	mux "github.com/gorilla/mux"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 //Here, we define the templates as global viriables to be reachable within all functions
