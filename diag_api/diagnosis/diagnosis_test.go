@@ -31,6 +31,7 @@ var ds1 = []Disease{
 	},
 }
 
+<<<<<<< HEAD
 var pat2 = Patient{
 	Gender:   "Female",
 	Age:      25,
@@ -61,6 +62,8 @@ var ds3 = []Disease{
 	},
 }
 
+=======
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 func TestDiagnose(t *testing.T) {
 	DBAdrress := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("DBUSER_TEST"), os.Getenv("DBPASS_TEST"), os.Getenv("DBIP_TEST"), os.Getenv("DBPORT_TEST"), os.Getenv("DATABASE_TEST"))
 	dbconn, err := pgx.Connect(context.Background(), DBAdrress)
@@ -194,11 +197,16 @@ func TestDiagnose(t *testing.T) {
 		}
 		rows.Close()
 	}
+<<<<<<< HEAD
 	//Test 1
+=======
+
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 	ds, err := (&pat1).Diagnose(dbconn)
 	if err != nil {
 		t.Fatal(err)
 	}
+<<<<<<< HEAD
 	t.Log(ds)
 	if !cmp.Equal(ds, ds1) {
 		t.Fatal("the first test failed")
@@ -221,4 +229,10 @@ func TestDiagnose(t *testing.T) {
 	if !cmp.Equal(ds, ds3) {
 		t.Fatal("the first test failed")
 	}
+=======
+	fmt.Println(ds)
+	if !cmp.Equal(ds, ds1) {
+		t.Fatal("the first test failed")
+	}
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 }

@@ -66,6 +66,10 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	`
 	rows, err := conn.Query(context.Background(), mainQ, (*pat).Gender, (*pat).Age, (*pat).Symptoms)
 	if err != nil {
+<<<<<<< HEAD
+=======
+		fmt.Println("Err: line 70 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 		return nil, err
 	}
 	defer rows.Close()
@@ -78,10 +82,15 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	for rows.Next() {
 		err := rows.Scan(&s1, &s2)
 		if err != nil {
+<<<<<<< HEAD
+=======
+			fmt.Println("Err: line 83 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 			return nil, err
 		}
 		if s1 == d.Name {
 			d.Symptoms = append(d.Symptoms, s2)
+<<<<<<< HEAD
 		} else {
 			if d.Name != "" {
 				ds = append(ds, d)
@@ -92,8 +101,23 @@ func (pat *Patient) Diagnose(conn *pgx.Conn) ([]Disease, error) {
 	}
 	if d.Name != "" {
 		ds = append(ds, d)
+=======
+		} else if d.Name == "" {
+			d.Name = s1
+			d.Symptoms = []string{s2}
+		} else {
+			ds = append(ds, d)
+			d.Name = s1
+			d.Symptoms = []string{s2}
+		}
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 	}
+	ds = append(ds, d)
 	//Return the result
+<<<<<<< HEAD
+=======
+	// return ds, nil
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 	return ds, nil
 }
 
@@ -106,6 +130,10 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	jsonDecoder := json.NewDecoder(req.Body)
 	err := jsonDecoder.Decode(&p)
 	if err != nil {
+<<<<<<< HEAD
+=======
+		fmt.Println("Err: line 109 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 		return nil, err
 	}
 	//Check the gender input and set it inside the patient struct
@@ -115,10 +143,18 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	case "male":
 		p.Gender = "Male"
 	default:
+<<<<<<< HEAD
+=======
+		fmt.Println("Err: line 119 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 		return nil, errors.New("wrong gender input format")
 	}
 	//Check the age input and set in inside the patient struct
 	if p.Age < 0 || p.Age > 150 {
+<<<<<<< HEAD
+=======
+		fmt.Println("Err: line 124 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 		return nil, errors.New("wrong age input format")
 	}
 	//Check the symptoms input and set in inside the patient struct
@@ -126,6 +162,10 @@ func FormProcess(req *http.Request) (*Patient, error) {
 	// seperator := regexp.MustCompile(" *(([,;](\r\n|\n)* *)|([,;]*(\r\n|\n) *))")
 	// p.Symptoms = seperator.Split(form.Symptoms, -1)
 	if len(p.Symptoms) == 0 {
+<<<<<<< HEAD
+=======
+		fmt.Println("Err: line 132 of diagnosis.go")
+>>>>>>> ab318a64e67f4eab5c00a6a37e4a2c30f1f318eb
 		return nil, errors.New("empty list of symptoms")
 	}
 	//Return the resulting patient struct and nil as the error

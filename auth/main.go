@@ -13,9 +13,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
-	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4"
+	jwt "github.com/golang-jwt/jwt"
+	mux "github.com/gorilla/mux"
+	pgx "github.com/jackc/pgx/v4"
 )
 
 //Following environment variables are needed for this programm to run
