@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/mail"
 	"os"
 	"time"
 
@@ -32,14 +33,21 @@ var dbconn *pgx.Conn
 var pubKeyStr string
 var privKey ed25519.PrivateKey
 
-//Introduce the struct Patient and some method to export its content
+//Introduce the struct LogIn and SignUp
 type LogIn struct {
-	Email    string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type SignUp struct {
+	Name     string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 //This handler serves the authentication public key
 //This key is used to verify the JW token inside other components of the website
+// TODO: Add captcha
 func pubKeyHandler(wr http.ResponseWriter, req *http.Request) {
 	wr.Header().Set("Content-Type", "text/plain")
 	fmt.Fprint(wr, pubKeyStr)
@@ -57,16 +65,22 @@ WHERE email=$1 AND password_hash=$2;
 		Issuer: "Docassist aut",
 	}
 	var l LogIn
-	//Determine the output format
+	//Specify the output format
 	wr.Header().Add("Access-Control-Allow-Origin", "*")
 	wr.Header().Set("Content-Type", "text/plain")
 	//Parse the posted form and extract it for further process
 	jsonDecoder := json.NewDecoder(req.Body)
 	err := jsonDecoder.Decode(&l)
 	if err != nil {
-		http.Error(wr, err.Error(), http.StatusInternalServerError)
+		http.Error(wr, "wrong request format", http.StatusBadRequest)
 		return
 	}
+	_, err = mail.ParseAddress(l.Email)
+	if err != nil {
+		http.Error(wr, "wrong email format", http.StatusBadRequest)
+		return
+	}
+	// TODO: add salt to hash
 	passHash := sha256.Sum256([]byte(l.Password))
 	passHashBase64 := base64.StdEncoding.EncodeToString(passHash[:])
 	rows, err := dbconn.Query(context.Background(), authQuery, l.Email, passHashBase64)
@@ -79,15 +93,15 @@ WHERE email=$1 AND password_hash=$2;
 	var sub string
 	err = rows.Scan(&n, &sub)
 	if err != nil {
-		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
+		http.Error(wr, "something went wrong.", http.StatusInternalServerError)
 		log.Fatal(err)
 	}
 	if n == 0 {
-		http.Error(wr, "Authentication failed!", http.StatusUnauthorized)
+		http.Error(wr, "authentication failed.", http.StatusUnauthorized)
 		return
 	}
 	if n != 1 {
-		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
+		http.Error(wr, "something went wrong.", http.StatusInternalServerError)
 		log.Fatal(err)
 	}
 	claims.ExpiresAt = time.Now().Unix() + 432000
@@ -95,12 +109,76 @@ WHERE email=$1 AND password_hash=$2;
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 	signedToken, err := token.SignedString(privKey)
 	if err != nil {
-		http.Error(wr, "Something went wrong!", http.StatusInternalServerError)
+		http.Error(wr, "something went wrong.", http.StatusInternalServerError)
 		log.Fatal(err)
 	}
 	//Feed the data into the result page template and serve it
 	wr.WriteHeader(http.StatusOK)
 	fmt.Fprint(wr, signedToken)
+}
+
+func registerationHandler(wr http.ResponseWriter, req *http.Request) {
+	const newidQuery = `
+	SELECT count(id)
+	FROM user_table;
+	`
+	const signUpQuery = `
+	INSERT INTO user_table
+		VALUES (
+			$1,
+			$2,
+			$3,
+			$4
+		);
+	`
+	var duplicateIDErr = errors.New("duplicate key value violates unique constraint \"user_table_pkey\"")
+	var duplicateEmailErr = errors.New("duplicate key value violates unique constraint \"user_table_email_key\"")
+	var s SignUp
+	// Specify the output format
+	wr.Header().Add("Access-Control-Allow-Origin", "*")
+	wr.Header().Set("Content-Type", "text/plain")
+	//Parse the posted form and extract it for further process
+	jsonDecoder := json.NewDecoder(req.Body)
+	err := jsonDecoder.Decode(&s)
+	if err != nil {
+		http.Error(wr, "wrong request format", http.StatusBadRequest)
+		return
+	}
+	_, err = mail.ParseAddress(s.Email)
+	if err != nil {
+		http.Error(wr, "wrong email format", http.StatusBadRequest)
+		return
+	}
+	// TODO: add salt to hash
+	passHash := sha256.Sum256([]byte(s.Password))
+	passHashBase64 := base64.StdEncoding.EncodeToString(passHash[:])
+	rows, err := dbconn.Query(context.Background(), newidQuery)
+	if err != nil {
+		http.Error(wr, "something went wrong.", http.StatusInternalServerError)
+		log.Fatal(err)
+	}
+	var id int
+	err = rows.Scan(&id)
+	if err != nil {
+		http.Error(wr, "something went wrong.", http.StatusInternalServerError)
+		log.Fatal(err)
+	}
+	for err := duplicateIDErr; err == duplicateIDErr; id++ {
+		rows, err = dbconn.Query(context.Background(), signUpQuery, id, s.Name, s.Email, passHashBase64)
+		switch err {
+		case duplicateIDErr:
+			continue
+		case duplicateEmailErr:
+			http.Error(wr, "email already exists.", http.StatusBadRequest)
+			return
+		default:
+			http.Error(wr, "something went wrong.", http.StatusInternalServerError)
+			log.Fatal(err)
+		}
+	}
+	defer rows.Close()
+	wr.WriteHeader(http.StatusOK)
+	fmt.Fprint(wr, "user successfully signed up.")
 }
 
 func main() {
@@ -128,8 +206,9 @@ func main() {
 	//Initialize the mux router
 	router := mux.NewRouter().StrictSlash(true)
 	//Set the respective handlers to uri addresses
-	router.HandleFunc("/authentication/v1/index.html", logInHandler).Methods(http.MethodPost)
-	router.HandleFunc("/authentication/v1/publickey.html", pubKeyHandler).Methods(http.MethodGet)
+	router.HandleFunc("/authentication/v1/login", logInHandler).Methods(http.MethodPost)
+	router.HandleFunc("/authentication/v1/publickey", pubKeyHandler).Methods(http.MethodGet)
+	router.HandleFunc("/authentication/v1/register", registerationHandler).Methods(http.MethodGet)
 	//Listen to the defined port and serve
 	err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("AUTHAPIPORT")), router)
 	if err != nil {
