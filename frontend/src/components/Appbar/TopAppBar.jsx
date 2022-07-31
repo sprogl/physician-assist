@@ -1,6 +1,7 @@
-import {AppBar, Button, IconButton, Toolbar, Typography} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
-import {makeStyles} from "@material-ui/core/styles";
+import {AppBar, Button, IconButton, Toolbar, Typography} from "@material-ui/core"
+import MenuIcon from "@material-ui/icons/Menu"
+import {makeStyles} from "@material-ui/core/styles"
+import { Link } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -12,10 +13,10 @@ const useStyles = makeStyles((theme) => ({
     title: {
         flexGrow: 1,
     },
-}));
+}))
 
 export default function TopAppBar() {
-    const classes = useStyles();
+    const classes = useStyles()
 
     return (
         <div className={classes.root}>
@@ -27,9 +28,9 @@ export default function TopAppBar() {
                     <Typography variant="h6" className={classes.title}>
                         DocAssist
                     </Typography>
-                    <Button color="inherit">Login</Button>
+                    <Link to="/login" color="inherit">Login</Link>
                 </Toolbar>
             </AppBar>
         </div>
-    );
+    )
 }

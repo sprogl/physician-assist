@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import useStyles from './styles'
-import Tags from './Tags';
-import axios from 'axios';
+import Tags from './Tags'
+import CheckboxesTags from './TagsAutoComplete'
 import { Accordion, AccordionDetails, AccordionSummary, Button, FormControl, FormControlLabel, FormLabel, Grid, List, ListItem, ListItemIcon, ListItemText, Paper, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline'
+import { fetchPosts } from '../api'
 
 const defaultValues = {
   age: 11,
@@ -27,12 +28,12 @@ const SymptomList = React.memo(function SymptomList(props) {
 })
 
 const AccordionSection = (props) => {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [ isExpanded, setIsExpanded ] = useState(true)
+  const { item } = props
 
   const handleAccordionExpanded = () => {
     setIsExpanded(!isExpanded)
   }
-  const {item} = props
   return (
     <Accordion onClick={handleAccordionExpanded} expanded={isExpanded}>
       <AccordionSummary
@@ -44,7 +45,7 @@ const AccordionSection = (props) => {
       </AccordionSummary>
       <AccordionDetails>
         <div>
-          {item.symptoms.map((symp, i) => <SymptomList key={i} sympName={symp} /> )}
+          {item.symptoms && item.symptoms.map((symp, i) => <SymptomList key={i} sympName={symp} /> )}
         </div>
       </AccordionDetails>
     </Accordion>
@@ -95,10 +96,10 @@ function Form() {
     
   const classes = useStyles()
   
-  const [formValues, setFormValues] = useState(defaultValues);
+  const [formValues, setFormValues] = useState(defaultValues)
   const [isNewData, setIsNewData] = useState(false)
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormValues({
       ...formValues,
       [name]: value,
@@ -115,14 +116,7 @@ function Form() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const data = await axios.post(`/diagnosis/v1/index.html`, {...formValues, age: parseInt(formValues.age)}, {
-      headers: {
-      'Content-Type': 'application/json'
-      },
-      mode: 'same-origin', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-    })
+    const data = await fetchPosts({...formValues, age: parseInt(formValues.age)})
     setResData({...resData, ...data.data})
     setIsNewData(true)  
   };
@@ -141,6 +135,9 @@ function Form() {
           <Grid itemxs={3}>
             <Tags formValues={formValues} setFormValues={setFormValues}/>
           </Grid>
+          {/* <Grid itemxs={3}>
+            <CheckboxesTags />
+          </Grid> */}
           <Button variant="contained" color="primary" type="submit" xs={3}>
             Submit
           </Button>
